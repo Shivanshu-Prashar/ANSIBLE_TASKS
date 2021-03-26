@@ -1,0 +1,145 @@
+- hosts: namenode
+  tasks:
+  - name: CREATING DIRECTORY FOR HADOOP_NAMENODE
+    command: mkdir /test
+    become: yes
+  - name: INSTALLING JDK PACKAGE
+    command: rpm -ivh /home/ec2-user/jdk-8u171-linux-x64.rpm
+    ignore_errors: yes
+    become: yes
+  - name: INSTALLING HADOOP PACKAGE
+    command: rpm -ivh /home/ec2-user/hadoop-1.2.1-1.x86_64.rpm --force
+    ignore_errors: yes
+    become: yes
+  - name: REMOVING hdfs-site.xml FILE
+    command: rm -r /etc/hadoop/hdfs-site.xml
+    become: yes
+  - name: REMOVING core-site.xml FILE IN NAMENODE
+    command: rm -r /etc/hadoop/core-site.xml
+    become: yes
+  - name: CONFIGURING hdfs-site.xml FILE
+    blockinfile:
+     dest: /etc/hadoop/hdfs-site.xml
+     create: yes
+     marker: ""
+     block: |
+       <?xml version="1.0"?>
+       <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+       <!-- Put site-specific property overrides in this file. -->
+
+       <configuration>
+       <property>
+       <name>dfs.name.dir</name>
+       <value>/test</value>
+       </property>
+       </configuration>
+    become: yes
+  - name: CONFIGURING core-site.xml FILE IN NAMENODE
+    blockinfile:
+     dest: /etc/hadoop/core-site.xml
+     create: yes
+     marker: ""
+     block: |
+      <?xml version="1.0"?>
+      <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+      <!-- Put site-specific property overrides in this file. -->
+
+      <configuration>
+      <property>
+      <name>fs.default.name</name>
+      <value>hdfs://0.0.0.0:9001</value>
+      </property>
+      </configuration>  
+    become: yes
+  - name: Remove blank lines
+    lineinfile :
+     path: /etc/hadoop/hdfs-site.xml
+     state: absent
+     regexp: '^$'
+    become: yes
+  - name: Remove blank lines
+    lineinfile :
+     path: /etc/hadoop/core-site.xml
+     state: absent
+     regexp: '^$'
+    become: yes
+  - name: FORMATTING NAMENODE
+    shell: echo Y | hadoop namenode -format
+    become: yes
+  - name: STARTING NAMENODE SERVICES
+    command: hadoop-daemon.sh start namenode
+    become: yes
+
+- hosts: datanode
+  tasks:
+  - name: CREATING DIRECTORY AT DATANODE
+    command: mkdir /test
+    become: yes
+  - name: INSTALLING JDK PACKAGE AT DATANODE
+    command: rpm -ivh /home/ec2-user/jdk-8u171-linux-x64.rpm
+    ignore_errors: yes
+    become: yes
+  - name: INSTALLING HADOOP PACKAGE AT DATANODE
+    command: rpm -ivh /home/ec2-user/hadoop-1.2.1-1.x86_64.rpm --force
+    ignore_errors: yes
+    become: yes
+  - name: REMOVING hdfs-site.xml file
+    command: rm -r /etc/hadoop/hdfs-site.xml
+    become: yes
+  - name: REMOVING core-site.xml file
+    command: rm -r /etc/hadoop/core-site.xml
+    become: yes
+  - name: CONFIGURING hdfs-site.xml AT DATANODE
+    blockinfile:
+     dest: /etc/hadoop/hdfs-site.xml
+     create: yes
+     marker: ""
+     block: |
+       <?xml version="1.0"?>
+       <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+       <!-- Put site-specific property overrides in this file. -->
+
+       <configuration>
+       <property>
+       <name>dfs.data.dir</name>
+       <value>/test</value>
+       </property>
+       </configuration>
+    become: yes
+  - name: CONFIGURING core-site.xml AT DATANODE
+    blockinfile:
+     dest: /etc/hadoop/core-site.xml
+     create: yes
+     marker: ""
+     block: |
+      <?xml version="1.0"?>
+      <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+      <!-- Put site-specific property overrides in this file. -->
+
+      <configuration>
+      <property>
+      <name>fs.default.name</name>
+      <value>hdfs://65.1.135.220:9001</value>
+      </property>
+      </configuration>
+    become: yes
+  - name: Remove Blank LINES
+    lineinfile :
+     path: /etc/hadoop/hdfs-site.xml
+     state: absent
+     regexp: '^$'
+    become: yes
+  - name: Remove blank lines 
+    lineinfile :
+     path: /etc/hadoop/core-site.xml
+     state: absent
+     regexp: '^$'
+    become: yes
+  - name: Starting datanode
+    command: hadoop-daemon.sh start datanode
+    become: yes
+
