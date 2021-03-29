@@ -1,0 +1,23 @@
+- hosts: webserver
+  tasks: 
+  - name: MAKE CHANGE IN  CONF FILE
+    copy: 
+     dest: /etc/httpd/conf.d/
+     src: httpd_conf_file.conf
+    register: x
+    become: yes
+  - copy:
+     dest: /var/www/handler/
+     src: /w1/index.html
+    become: yes
+    notify: 
+    - webserver-handler
+    when: x.changed==true
+  handlers:
+  - name: webserver-handler
+    service:
+     name: httpd
+     state: restarted 
+    become: yes
+    
+    
