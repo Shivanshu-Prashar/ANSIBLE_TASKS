@@ -1,0 +1,42 @@
+- hosts: haproxy
+  tasks:
+  - name: INSTALLING HAPROXY PACKAGE ON MAIN MACHINE
+    package: 
+     name: haproxy
+     state: present
+    become: yes
+- hosts: webservers
+  tasks:
+  - name: CONFIGURING WEBSERVERS
+    package:
+     name: "{{item}}"
+     state: present
+    loop:
+    - httpd
+    - php
+    become: yes
+  
+  - name: ADDING CONTENT TO WEBSERVERS
+    template:
+     src: webserver-content.php
+     dest: /var/www/html
+    become: yes
+  - name: STARTING WEB-SERVICES
+    service:
+     name: httpd
+     state: started
+    become: yes
+- hosts: haproxy
+  tasks:
+  - command: rm -rf /etc/haproxy/haproxy.cfg
+    become: yes
+  - name: CONFIGURING HAPROXY
+    template:
+     src: haproxy.cfg
+     dest: /etc/haproxy/
+    become: yes
+  - name: STARTING HAPROXY SERVICES
+    service: 
+     name: haproxy
+     state: started
+    become: yes
