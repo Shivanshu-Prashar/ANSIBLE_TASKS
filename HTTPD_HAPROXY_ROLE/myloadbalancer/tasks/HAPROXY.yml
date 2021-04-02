@@ -1,0 +1,17 @@
+- name: INSTALLING HAPROXY PACKAGE 
+  package: 
+     name: haproxy
+     state: present
+  become: yes
+- command: rm -rf /etc/haproxy/haproxy.cfg
+  become: yes
+- name: CONFIGURING HAPROXY
+  template:
+    src: haproxy.cfg
+    dest: /etc/haproxy/
+  become: yes
+- name: STARTING HAPROXY SERVICES
+  service: 
+   name: haproxy
+   state: started
+  become: yes

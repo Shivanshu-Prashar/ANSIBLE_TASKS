@@ -1,0 +1,20 @@
+---
+# tasks file for myapache
+- name: INSTALLING HTTPD SERVICES
+  package:
+   name: "{{item}}"
+   state: present
+  loop:
+  - httpd
+  - php
+  become: yes
+- name: COPYING CONTENT FILE
+  copy:
+   src: index.php
+   dest: /var/www/html
+  become: yes
+- name: STARTING WEBSERVICES
+  service:
+   name: httpd
+   state: started
+  become: yes

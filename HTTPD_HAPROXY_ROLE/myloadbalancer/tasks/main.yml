@@ -1,0 +1,4 @@
+---
+# tasks file for myloadbalancer
+- name: HAPROXY SETUP
+  import_tasks: HAPROXY.yml
